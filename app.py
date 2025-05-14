@@ -293,7 +293,14 @@ class Button_Frame(QtWidgets.QFrame) :
             text = text.replace("÷", "/")
         if "%" in text :
             text = text.replace("%", "*0.01")
-        text = str(eval(text))
+        while True :
+            try :
+                text = str(eval(text))
+                break
+            except SyntaxError :
+                self.func_bracket()
+                text = self.parent.compute_area.toPlainText()
+        
         self.parent.compute_area.setText(text)
     # endregion
     # region: 其他功能按鈕函式區
@@ -347,18 +354,21 @@ class Button_Frame(QtWidgets.QFrame) :
     
     def func_PNsign(self) :
         text = self.parent.compute_area.toPlainText()
-        for t in range(len(text)-1, -1) :
-            if text[t]+text[t-1] == "(-" :
-                text[t] = ""
-                text[t-1] = ""
+        for t in range(len(text)-1, -1, -1) :
+            if text[t-1] + text[t] == "(-" :
+                text = text[:t-1] + text[t+1:]
+                self.parent.compute_area.setText(text)
                 return
             elif text[t] in ("+", "-", "×", "÷") :
-                text[t+1] = "(-"
+                if t == len(text)-1 :
+                    return
+                text = text[:t+1] + "(-" + text[t+1:]
+                self.parent.compute_area.setText(text)
                 return
-            else :
+            elif t == 0 :
                 text = "(-" + text
+                self.parent.compute_area.setText(text)
                 return
-        self.parent.compute_area.toPlainText()
     # endregion
 
 if __name__ == "__main__" :
